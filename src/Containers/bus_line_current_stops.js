@@ -2,16 +2,16 @@ import composeWithTracker from 'rn-meteor-containerize';
 import Meteor from 'react-native-meteor';
 
 function composer(props, onData){
-  const handle = Meteor.subscribe('busLines.all');
+  const handle = Meteor.subscribe('busLineCurrentStops.all');
 
   if(handle.ready()){
     onData(null, {
-      busLines: Meteor.collection('busLines').find({}) || [],
+      busLineCurrentStops: Meteor.collection('busLineCurrentStops').find({}),
     })
   } else {
     onData(null, {
       loading: true,
-      busLines: [],
+      busLineCurrentStops: [],
     })
   }
 }
