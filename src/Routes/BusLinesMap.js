@@ -7,27 +7,55 @@ import {
   ScrollView, 
   StyleSheet,
 } from 'react-native'
+import _ from 'lodash'
 import Meteor from 'react-native-meteor'
 import MapView from 'react-native-maps';
-import BusLinesContainer from '~/src/Containers/bus_lines'
-import _ from 'lodash'
+
+// Components
+import MapBusMarker from '~/Components/MapBusMarker'
+
+// Containers
+import BusLinesContainer from '~/Containers/bus_lines'
 
 class BusLinesMap extends Component {
   render() {
-    const stopsComing = _(this.props.busLines)
+    const busLineStopsGoing = _(this.props.busLines)
       .map(busLine => {
-        return busLine.stopsComing.map(stop => ({
-          coordinate: [stop.coordinates.latitude, stop.coordinates.longitude],
-          title: stop.address,
-          description: stop.stopDescription,
-        }) )
+        return {
+          lineNumber: busLine.lineNumber,
+          stopsGoing: busLine.stopsGoing.map(stop => ({
+            key: stop._id,
+            coordinate: stop.coordinates,
+            title: stop.address,
+            description: stop.stopDescription,
+            isCurrentOne: stop.isCurrentOne,
+          }) ),
+        }
       })
-      .flatten()
+      .value()
+
+    const busLineStopsComing = _(this.props.busLines)
+      .map(busLine => {
+        return {
+          lineNumber: busLine.lineNumber,
+          stopsComing: busLine.stopsComing.map(stop => ({
+            key: stop._id,
+            coordinate: stop.coordinates,
+            title: stop.address,
+            description: stop.stopDescription,
+            isCurrentOne: stop.isCurrentOne,
+          }) ),
+        }
+      })
       .value()
 
     return (
       <MapView
-        style={locationStyles.map}
+        style={{
+          width: null,
+          height: null,
+          flex: 1,
+        }}
         initialRegion={{
           latitude: -22.262681,
           longitude: -45.940838,
@@ -36,7 +64,53 @@ class BusLinesMap extends Component {
         }}
       >
         {
-          stops.map(stop => <MapView.Marker {...stop}/>)
+          busLineStopsGoing.map(({ stopsGoing, lineNumber }) => {
+            return stopsGoing.map(stop => (
+              <MapView.Marker {...stop}>
+                <MapBusMarker
+                  lineNumber={lineNumber}
+                  isCurrentOne={stop.isCurrentOne}
+                />
+              </MapView.Marker>
+            ))
+          })
+        }
+
+        {
+          busLineStopsGoing.map(({ lineNumber, stopsGoing }) => {
+            return (
+              <MapView.Polyline
+                key={lineNumber}
+                strokeColor={`#${lineNumber}888`}
+                coordinates={stopsGoing.map(({ coordinate }) => coordinate)}
+              />
+            )
+          })
+        }
+
+        {
+          busLineStopsComing.map(({ stopsComing, lineNumber }) => {
+            return stopsComing.map(stop => (
+              <MapView.Marker {...stop}>
+                <MapBusMarker
+                  lineNumber={lineNumber}
+                  isCurrentOne={stop.isCurrentOne}
+                />
+              </MapView.Marker>
+            ))
+          })
+        }
+
+        {
+          busLineStopsComing.map(({ lineNumber, stopsComing }) => {
+            return (
+              <MapView.Polyline
+                key={lineNumber}
+                strokeColor={`#${lineNumber}888`}
+                coordinates={stopsComing.map(({ coordinate }) => coordinate)}
+              />
+            )
+          })
         }
       </MapView>
     );
