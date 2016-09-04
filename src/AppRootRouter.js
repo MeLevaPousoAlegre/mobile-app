@@ -28,16 +28,14 @@ import ConnectServer from '~/Services/ConnectServer';
 import RedirNonUserContainer from './Containers/redir_non_user';
 import UserStoredTokenContainer from './Containers/user_stored_token';
 
-import '~/Services/OneSignalListener';
-
 // Styles
 import appStyles from './Styles/app';
 
 // Initialize websocket connection
 ConnectServer();
 
-@UserStoredTokenContainer
-@RedirNonUserContainer
+// @UserStoredTokenContainer
+// @RedirNonUserContainer
 export default class RootRouter extends Component {
   constructor(props) {
     super(props);
