@@ -17,4 +17,4 @@ const App = () => {
   );
 }
 
-AppRegistry.registerComponent('AstroApp', () => App);
+AppRegistry.registerComponent('MeLeva', () => App);
